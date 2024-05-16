@@ -1,0 +1,200 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATASOURCE_URL")
+}
+
+model User {
+  id                 Int                  @id @default(autoincrement())
+  username           String               @unique
+  password           String
+  email              String               @unique
+  phone              String
+  about              String?
+  firstName          String               @map("first_name")
+  lastName           String               @map("last_name")
+  refreshToken       String?              @unique @map("refresh_token") @db.Uuid
+  lastLogin          DateTime?            @default(now()) @map("last_login") @db.Date
+  createOn           DateTime?            @default(now()) @map("create_on") @db.Date
+  schoolId           String?              @unique @map("school_id")
+  roleId             Int                  @map("role_id")
+  role               Role                 @relation(fields: [roleId], references: [id])
+  Analyzer           Analyzer[]
+  AssignmentQuestion AssignmentQuestion[]
+  course             Course[]
+  QuestionComment    QuestionComment[]
+  StudentAssignment  StudentAssignment[]
+  studentCourse      StudentCourse[]
+  studentGroup       StudentGroup[]
+
+  @@map("t_user")
+}
+
+model Role {
+  id          Int     @id @default(autoincrement())
+  name        String
+  description String?
+  user        User[]
+
+  @@map("role")
+}
+
+model Course {
+  id            Int             @id @default(autoincrement())
+  name          String          @unique
+  description   String?
+  startDate     DateTime        @map("start_date") @db.Date
+  endDate       DateTime        @map("end_date") @db.Date
+  instructedBy  Int             @map("instructed_by")
+  instructor    User            @relation(fields: [instructedBy], references: [id])
+  Assignment    Assignment[]
+  studentCourse StudentCourse[]
+  group         Group[]
+
+  @@map("course")
+}
+
+model Group {
+  id                Int                 @id @default(autoincrement())
+  name              String              @unique
+  courseId          Int                 @map("course_id")
+  course            Course              @relation(fields: [courseId], references: [id])
+  StudentAssignment StudentAssignment[]
+  studentGroup      StudentGroup[]
+
+  @@map("t_group")
+}
+
+model StudentGroup {
+  id        Int   @id @default(autoincrement())
+  groupId   Int   @map("group_id")
+  studentId Int   @map("student_id")
+  group     Group @relation(fields: [groupId], references: [id])
+  student   User  @relation(fields: [studentId], references: [id])
+
+  @@map("student_group")
+}
+
+model StudentCourse {
+  id        Int    @id @default(autoincrement())
+  courseId  Int    @map("course_id")
+  studentId Int    @map("student_id")
+  course    Course @relation(fields: [courseId], references: [id])
+  student   User   @relation(fields: [studentId], references: [id])
+
+  @@map("student_course")
+}
+
+model Assignment {
+  id                   Int                    @id @default(autoincrement())
+  name                 String                 @unique
+  description          String
+  dueDate              DateTime               @map("due_date") @db.Date
+  courseId             Int                    @map("course_id")
+  course               Course                 @relation(fields: [courseId], references: [id])
+  assignmentAttachment AssignmentAttachment[]
+  StudentAssignment    StudentAssignment[]
+
+  @@map("assignment")
+}
+
+model StudentAssignment {
+  id                 Int                  @id @default(autoincrement())
+  url                String?
+  status             AssignmentStatus     @default(ASSIGNED)
+  submitAt           DateTime?            @map("submit_at") @db.Date
+  assignedFor        Int                  @map("assigned_for")
+  assignedBy         Int                  @map("assigned_by")
+  assignmentId       Int                  @map("assignment_id")
+  instructor         User                 @relation(fields: [assignedBy], references: [id])
+  group              Group                @relation(fields: [assignedFor], references: [id])
+  assignment         Assignment           @relation(fields: [assignmentId], references: [id])
+  AssignmentQuestion AssignmentQuestion[]
+  localizationReport LocalizationReport[]
+
+  @@map("student_assignment")
+}
+
+model AssignmentQuestion {
+  id                  Int               @id @default(autoincrement())
+  generatedText       String            @map("generated_text")
+  overwriteText       String?           @map("overwrite_text")
+  helpText            String?           @map("help_text")
+  //test
+  level               String?           @map("level")
+  scope               String?           @map("scope")
+  isAssigned          Boolean           @default(false) @map("is_assigned")
+  modifiedOn          DateTime?         @default(now()) @map("modified_on") @db.Date
+  modifiedBy          Int?              @map("modified_by")
+  studentAssignmentId Int               @map("student_assignment_id")
+  modifier            User?             @relation(fields: [modifiedBy], references: [id])
+  studentAssignment   StudentAssignment @relation(fields: [studentAssignmentId], references: [id])
+  questionComment     QuestionComment[]
+
+  @@map("assignment_question")
+}
+
+model LocalizationReport {
+  id                  Int               @id @default(autoincrement())
+  location            String
+  score               Float
+  studentAssignmentId Int               @map("student_assignment_id")
+  studentAssignment   StudentAssignment @relation(fields: [studentAssignmentId], references: [id])
+
+  @@map("localization_report")
+}
+
+model Analyzer {
+  id                    Int     @id @default(autoincrement())
+  name                  String
+  description           String?
+  analyzerBase64        String? @map("analyzer_base64")
+  analyzerFileName      String? @map("analyzer_file_name")
+  analyzerFileExtension String? @map("analyzer_file_extension")
+  analyzerFileSize      String? @map("analyzer_file_size")
+  directoryUrl          String? @map("directory_url")
+  developerId           Int     @map("developer_id")
+  developer             User    @relation(fields: [developerId], references: [id])
+
+  @@map("analyzer")
+}
+
+model QuestionComment {
+  id                   Int                @id @default(autoincrement())
+  text                 String
+  createdOn            DateTime           @default(now()) @map("created_on") @db.Date
+  createdBy            Int                @map("created_by")
+  parentId             Int?               @map("parent_id")
+  assignmentQuestionId Int                @map("assignment_question_id")
+  assignmentQuestion   AssignmentQuestion @relation(fields: [assignmentQuestionId], references: [id])
+  creator              User               @relation(fields: [createdBy], references: [id])
+
+  @@map("question_comment")
+}
+
+model AssignmentAttachment {
+  id               Int        @id @default(autoincrement())
+  name             String
+  extension        String
+  size             String
+  attachmentBase64 String     @map("attachment_base64")
+  assignmentId     Int        @map("assignment_id")
+  assignment       Assignment @relation(fields: [assignmentId], references: [id])
+
+  @@map("assignment_attachment")
+}
+
+enum AssignmentStatus {
+  ASSIGNED
+  SUBMITTED
+  GENERATED
+  QUESTIONED
+  ANSWERED
+  FINALIZED
+  CLOSED
+
+  @@map("assignmentstatus")
+}

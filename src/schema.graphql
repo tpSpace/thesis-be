@@ -1,0 +1,254 @@
+scalar DateTime
+
+type Query {
+	getUserById(id: Int!): User!
+	allUser(filterInput: UserFilter): [User]
+
+	getCourseById(id: Int!): Course!
+	allCourse(filterInput: CourseFilter): [Course]
+
+	getAssignmentById(id: Int!): Assignment!
+	allAssignment(filterInput: AssignmentFilter): [Assignment]
+
+	getStudentAssignmentById(id: Int!): StudentAssignment!
+	allStudentAssignment(filterInput: AssignmentFilter) : [StudentAssignment]
+
+	allAssignmentQuestion(id: Int!): [AssignmentQuestion]
+
+	allAnalyzer: [Analyzer]
+	getAnalyzerById(id: Int!): Analyzer
+}
+
+type Mutation {
+	signUp(userInput: UserSignUp!): AuthenticationPayload!
+	logIn(userInput: UserLogIn!): AuthenticationPayload!
+	logOut: Boolean!
+	refreshJWT: AuthenticationPayload!
+	changePassword(oldPassword: String!, newPassword: String!): Boolean!
+
+	upsertUser(userInput: UserUpsert!): User!
+	upsertCourse(courseInput: CourseUpsert!): Course!
+
+	registerCourse(studentId: [Int!], courseId: Int!): Boolean!
+	unregisterCourse(studentId: Int!, courseId: Int!): Boolean!
+
+	registerGroup(name: String!, studentId: [Int!], courseId: Int!): Boolean!
+	unregisterGroup(studentId: Int!, groupId: Int!): Boolean!
+
+	assignAssignment(assignmentId: Int!, groupId: [Int!]): Boolean!
+	upsertAssignment(assignmentInput: AssignmentUpsert!): Boolean!
+	submitAssignment(assignmentId: Int!, url: String!): Boolean!
+
+	assignQuestion(questionId: Int!, overwriteText: String!): Boolean!
+	postComment(questionId: Int!, text: String!): Boolean!
+
+	upsertAnalyzer(analyzerInput: AnalyzerUpsert!): Boolean!
+}
+
+type AuthenticationPayload {
+	token: String!
+	user: User!
+}
+
+type User {
+	id: Int!
+	username: String!
+	password: String
+	email: String!
+	firstName: String!
+	lastName: String!
+	phone: String!
+	schoolId: String
+	about: String
+	lastLogin: DateTime
+	createOn: DateTime
+	role: Role
+}
+
+type Role {
+	id: Int!
+	name: String!
+	description: String
+}
+
+input UserLogIn {
+	username: String!
+	password: String!
+}
+
+input UserSignUp {
+	username: String!
+	password: String!
+	email: String!
+	phone: String!
+	firstName: String!
+	lastName: String!
+}
+
+input UserUpsert {
+	id: Int!
+	username: String!
+	firstName: String!
+	lastName: String!
+	phone: String!
+	email: String!
+	about: String
+	roleId: Int!
+}
+
+input UserFilter {
+	roleId: Int
+}
+
+type Course {
+	id: Int!
+	name: String!
+	startDate: DateTime!
+	endDate: DateTime!
+	description: String
+	instructor: User
+	students: [User]
+	groups: [Group]
+}
+
+input CourseUpsert {
+	id: Int!
+	name: String!
+	description: String
+	startDate: DateTime!
+	endDate: DateTime!
+	instructedBy: Int!
+}
+
+input CourseFilter {
+	instructedBy: Int
+}
+
+type Group {
+	id: Int!
+	name: String!
+	course: Course
+	studentGroup: StudentGroup
+	students: [User]
+}
+
+type StudentGroup {
+	id: Int
+	student: User
+	group: Group
+}
+
+type Assignment {
+	id: Int!
+	name: String!
+	description: String
+	dueDate: DateTime!
+	course: Course
+	studentAssignments: [StudentAssignment]
+	groups: [Group]
+	attachments: [AssignmentAttachment]
+}
+
+type StudentAssignment {
+	id: Int!
+	url: String
+	status: AssignmentStatus
+	submitAt: DateTime
+	assignedFor: Group
+	assignedBy: User
+	assignment: Assignment
+}
+
+input AssignmentFilter {
+	assignmentName: String
+	courseName: String
+	dueDate: DateTime
+}
+
+input AssignmentUpsert {
+	id: Int
+	name: String!
+	description: String
+	dueDate: DateTime!
+	courseId: Int!
+	attachments: [AssignmentAttachmentUpsert]
+}
+
+enum AssignmentStatus {
+	ASSIGNED
+	SUBMITTED
+	GENERATED
+	QUESTIONED
+	ANSWERED
+	FINALIZED
+	CLOSED
+}
+
+type AssignmentQuestion {
+	id: Int!
+	generatedText: String!
+	overwriteText: String
+	helpText: String
+	isAssigned: Boolean
+	modifiedOn: DateTime
+	modifier: User
+	questionTemplate: QuestionTemplate
+	studentAssignment: StudentAssignment
+	questionComment: [QuestionComment]
+}
+
+type Analyzer {
+	id: Int!
+	name: String!
+	description: String
+	analyzerBase64: String
+	developer: User
+	analyzerFileName: String!
+	analyzerFileExtension: String!
+	analyzerFileSize: String!
+	directoryUrl: String!
+	questionTemplate: [QuestionTemplate]
+}
+
+type QuestionTemplate {
+	id: Int!
+	template: String!
+	scope: String
+	level: String
+	analyzer: Analyzer
+	assignmentQuestion: [AssignmentQuestion]
+}
+
+type QuestionComment {
+	id: Int!
+	text: String!
+	createdOn: DateTime
+	creator: User
+	assignmentQuestion: AssignmentQuestion
+}
+
+type AssignmentAttachment {
+	id: Int!
+	name: String!
+	extension: String!
+	size: String!
+	attachmentBase64: String!
+	assignment: Assignment!
+}
+
+input AssignmentAttachmentUpsert {
+	name: String!
+	extension: String!
+	size: String!
+	attachmentBase64: String!
+}
+
+input AnalyzerUpsert {
+	id: Int
+	name: String!
+	description: String!
+	analyzerBase64: String!
+	analyzerFileName: String!
+	analyzerFileExtension: String!
+	analyzerFileSize: String!
+}
