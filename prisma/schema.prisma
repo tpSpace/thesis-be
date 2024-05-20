@@ -123,7 +123,6 @@ model AssignmentQuestion {
   generatedText       String            @map("generated_text")
   overwriteText       String?           @map("overwrite_text")
   helpText            String?           @map("help_text")
-  //test
   level               String?           @map("level")
   scope               String?           @map("scope")
   isAssigned          Boolean           @default(false) @map("is_assigned")
@@ -140,6 +139,7 @@ model AssignmentQuestion {
 model LocalizationReport {
   id                  Int               @id @default(autoincrement())
   location            String
+  lineNumber          Int               @map("line_number")
   score               Float
   studentAssignmentId Int               @map("student_assignment_id")
   studentAssignment   StudentAssignment @relation(fields: [studentAssignmentId], references: [id])
