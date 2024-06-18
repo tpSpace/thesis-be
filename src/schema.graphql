@@ -18,9 +18,11 @@ type Query {
   allAnalyzer: [Analyzer]
   getAnalyzerById(id: Int!): Analyzer
 
-  getAllLocalizationReport: [LocalizationReport]
-  getLocalizationReportById(id: Int!): LocalizationReport!
-  getAllLocalizationReportsByAssignmentId(studentAssignmentId: Int!): [LocalizationReport]
+  getAllLocalizationReportsByAssignmentId(
+    studentAssignmentId: Int!
+  ): [LocalizationReport]
+
+  getAllExecutedTestsByAssignmentId(studentAssignmentId: Int!): [ExecutedTest]
 }
 
 type Mutation {
@@ -245,6 +247,14 @@ type LocalizationReport {
   location: String!
   lineNumber: Int!
   score: Float!
+  studentAssignmentId: Int!
+  studentAssignment: StudentAssignment
+}
+
+type ExecutedTest {
+  id: Int!
+  executedTest: String!
+  isFailing: Boolean!
   studentAssignmentId: Int!
   studentAssignment: StudentAssignment
 }

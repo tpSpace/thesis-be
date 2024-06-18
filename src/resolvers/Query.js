@@ -489,23 +489,6 @@ async function getAnalyzerById(parent, args, context, info) {
     return analyzer;
 }
 
-async function getAllLocalizationReport(parent, args, context, info){
-    const reports = await context.prisma.localizationReport.findMany();
-    return reports;
-}
-
-async function getLocalizationReportById(parent, args, context, info){
-    const {id} = args;
-    
-    const report = await context.prisma.localizationReport.findUnique({
-        where: {
-            id: id
-        },
-    });
-
-    if (report === null) return null;
-    return report 
-}
 
 async function getAllLocalizationReportsByAssignmentId(parent, args, context, info){
     const {studentAssignmentId} = args;
@@ -517,6 +500,18 @@ async function getAllLocalizationReportsByAssignmentId(parent, args, context, in
     });
     if (reports === null) return null;
     return reports
+}
+
+async function getAllExecutedTestsByAssignmentId(parent, args, context,info){
+    const {studentAssignmentId} = args;
+
+    const tests = await context.prisma.executedTest.findMany({
+        where:{
+            studentAssignmentId: studentAssignmentId
+        },
+    });
+    if (tests === null) return null;
+    return tests
 }
 
 module.exports = {
@@ -531,7 +526,6 @@ module.exports = {
     allAssignmentQuestion,
     allAnalyzer,
     getAnalyzerById,
-    getAllLocalizationReport,
-    getLocalizationReportById,
-    getAllLocalizationReportsByAssignmentId
+    getAllLocalizationReportsByAssignmentId,
+    getAllExecutedTestsByAssignmentId
 };

@@ -114,6 +114,7 @@ model StudentAssignment {
   assignment         Assignment           @relation(fields: [assignmentId], references: [id])
   AssignmentQuestion AssignmentQuestion[]
   localizationReport LocalizationReport[]
+  executedTest       ExecutedTest[]
 
   @@map("student_assignment")
 }
@@ -145,6 +146,15 @@ model LocalizationReport {
   studentAssignment   StudentAssignment @relation(fields: [studentAssignmentId], references: [id])
 
   @@map("localization_report")
+}
+
+model ExecutedTest {
+  id                  Int               @id @default(autoincrement())
+  executedTest        String            @map("executed_test")
+  isFailing           Boolean           @map("is_failing")
+  studentAssignmentId Int               @map("student_assignment_id")
+  studentAssignment   StudentAssignment @relation(fields: [studentAssignmentId], references: [id])
+  @@map("executed_test")
 }
 
 model Analyzer {
