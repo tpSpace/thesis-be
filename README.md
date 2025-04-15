@@ -9,6 +9,6 @@
 ## Run
 
 ```bash
-docker build -t lcasystem-be:latest .
-docker run -p 4000:4000 --env-file .env --name lcasystem-backend lcasystem-be:latest
+docker build -t thesis-be:latest .
+docker run -p 4000:4000 --env-file .env --name thesis-backend thesis-be:latest
 ```

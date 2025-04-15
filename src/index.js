@@ -48,6 +48,11 @@ const corsOptions = {
   allowedHeaders: ["Content-Type", "Authorization"],
 };
 
+// Simple health check endpoint
+app.get("/health", (req, res) => {
+  res.status(200).send("OK");
+});
+
 const PORT = process.env.PORT || 4000;
 
 async function startServer() {
