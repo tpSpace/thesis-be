@@ -40,6 +40,7 @@ const corsOptions = {
     "http://34.92.234.88:4000/graphql",
     "http://34.92.234.88:4000", // Added for direct access
     "http://34.96.173.121",
+    "http://34.96.173.121:80",
     "http://34.96.173.121:3000",
     "http://34.96.173.121:4000/graphql",
   ],
