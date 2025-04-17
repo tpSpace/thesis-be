@@ -33,10 +33,15 @@ app.use(express.urlencoded({ limit: "50mb", extended: true }));
 const corsOptions = {
   // Allow both direct access and via the ingress
   origin: [
-    process.env.CLIENT_ORIGIN || "http://localhost:3031",
+    "http://localhost:3031",
     "http://localhost:3000",
     "https://app.example.com", // Your ingress host
     "http://app.example.com", // Non-SSL version
+    "http://34.92.234.88:4000/graphql",
+    "http://34.92.234.88:4000", // Added for direct access
+    "http://34.96.173.121",
+    "http://34.96.173.121:3000",
+    "http://34.96.173.121:4000/graphql",
   ],
   credentials: true,
   allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
