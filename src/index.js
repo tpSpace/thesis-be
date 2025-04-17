@@ -58,6 +58,11 @@ app.get("/health", (req, res) => {
   res.status(200).send("OK");
 });
 
+// Simple health check endpoint
+app.get("/hello", (req, res) => {
+  res.status(200).send("hello");
+});
+
 const server = new ApolloServer({
   typeDefs: fs.readFileSync(path.join(__dirname, "schema.graphql"), "utf-8"),
   resolvers,
