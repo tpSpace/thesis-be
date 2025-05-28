@@ -3,7 +3,7 @@ FROM oven/bun:latest
 WORKDIR /app
 
 # Copy package files and install dependencies
-COPY package.json bun.lockb ./
+COPY package.json ./
 RUN bun install --production
 
 # Copy rest of the application
