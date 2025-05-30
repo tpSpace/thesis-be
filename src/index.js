@@ -14,6 +14,31 @@ const Mutation = require("./resolvers/Mutation");
 
 const prisma = new PrismaClient();
 
+// Database initialization function
+async function initializeDatabase() {
+  try {
+    // Test database connection
+    await prisma.$connect();
+    console.log('✅ Database connection successful');
+
+    // Run Prisma migrations
+    const { execSync } = require('child_process');
+    try {
+      console.log('🔄 Running database migrations...');
+      execSync('bunx prisma migrate deploy', { stdio: 'inherit' });
+      console.log('✅ Database migrations completed successfully');
+    } catch (error) {
+      console.error('❌ Error running migrations:', error);
+      throw error;
+    }
+
+    return true;
+  } catch (error) {
+    console.error('❌ Database initialization failed:', error);
+    throw error;
+  }
+}
+
 const resolvers = {
   Query: Query,
   Mutation: Mutation,
@@ -80,18 +105,39 @@ const server = new ApolloServer({
 const PORT = process.env.PORT || 4000;
 
 async function startServer() {
-  await server.start();
-  // Pass cors: false since we're handling it at the Express level
-  server.applyMiddleware({
-    app,
-    cors: false,
-    // Important: Match the path from your ingress configuration
-    path: "/api/graphql",
-  });
+  try {
+    // Initialize database first
+    await initializeDatabase();
 
-  app.listen(PORT, () => {
-    console.log(`🚀 Server ready at http://localhost:${PORT}/api/graphql`);
-  });
+    await server.start();
+    // Pass cors: false since we're handling it at the Express level
+    server.applyMiddleware({
+      app,
+      cors: false,
+      // Important: Match the path from your ingress configuration
+      path: "/api/graphql",
+    });
+
+    app.listen(PORT, () => {
+      console.log(`🚀 Server ready at http://localhost:${PORT}/api/graphql`);
+    });
+  } catch (error) {
+    console.error('Failed to start server:', error);
+    process.exit(1);
+  }
 }
+
+// Handle graceful shutdown
+// process.on('SIGINT', async () => {
+//   console.log('Shutting down server...');
+//   await prisma.$disconnect();
+//   process.exit(0);
+// });
+
+// process.on('SIGTERM', async () => {
+//   console.log('Shutting down server...');
+//   await prisma.$disconnect();
+//   process.exit(0);
+// });
 
 startServer();
