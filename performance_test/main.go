@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	graphqlURL = "http://34.96.244.61:4000/api/graphql" // Updated backend URL
+	graphqlURL = "http://34.96.244.61:4000/graphql" // Updated backend URL
 	numUsers   = 1000
 )
 
@@ -270,4 +270,4 @@ func main() {
 	fmt.Printf("Successful Logins: %d\n", successfulLogins)
 	fmt.Printf("Failed Logins: %d\n", numUsers-successfulLogins)
 	fmt.Printf("Average Login Duration: %v\n", totalLoginDuration/time.Duration(numUsers))
-} 
+}
