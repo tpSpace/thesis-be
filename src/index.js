@@ -48,6 +48,14 @@ const resolvers = {
 const app = express();
 app.disable("x-powered-by");
 
+// Add IP logging middleware
+app.use((req, res, next) => {
+  const ip = req.ip || req.socket.remoteAddress;
+  const timestamp = new Date().toISOString();
+  console.log(`[${timestamp}] Request from IP: ${ip}, Path: ${req.path}, Method: ${req.method}`);
+  next();
+});
+
 const cookieParser = require("cookie-parser");
 app.use(cookieParser());
 
