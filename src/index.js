@@ -70,13 +70,15 @@ const corsOptions = {
     "http://localhost:3000",
     "https://app.example.com", // Your ingress host
     "http://app.example.com", // Non-SSL version
-    "http://34.92.234.88:4000/graphql",
-    "http://34.92.234.88:4000", // Added for direct access
+    "http://34.96.244.61:4000/graphql",
+    "http://34.96.244.61:4000", // Added for direct access
     "http://34.96.173.121",
     "http://34.96.173.121:80",
     "http://34.96.173.121:3000",
     "http://10.28.3.1:4000",
     "http://10.28.3.1",
+    "http://34.150.28.208/",
+    "http://34.150.28.208:3000",
     "http://34.96.173.121:4000/graphql",
   ],
   credentials: true,

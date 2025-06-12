@@ -16,12 +16,12 @@ const (
 )
 
 type User struct {
-	Username  string
-	Password  string
-	Email     string
-	Phone     string
-	FirstName string
-	LastName  string
+	Username  string `json:"username"`
+	Password  string `json:"password"`
+	Email     string `json:"email"`
+	Phone     string `json:"phone"`
+	FirstName string `json:"firstName"`
+	LastName  string `json:"lastName"`
 }
 
 type GraphQLRequest struct {
