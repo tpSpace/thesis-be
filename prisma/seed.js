@@ -6,6 +6,9 @@ async function seedDatabase() {
   try {
     console.log("🌱 Starting database seeding...");
 
+    // Initialize createdRoles object to store role references
+    const createdRoles = {};
+
     // 1. Create roles first - check your actual t_role table structure
     const roles = [
       {
