@@ -22,21 +22,40 @@ async function seedDatabase() {
       },
     ];
 
-    console.log("Creating roles...");
-    const createdRoles = {};
+    console.log("Checking existing roles...");
+    const existingRolesCount = await prisma.role.count();
 
-    for (const role of roles) {
-      const createdRole = await prisma.t_role.upsert({
-        where: { name: role.name },
-        update: { description: role.description },
-        create: {
-          name: role.name,
-          description: role.description,
-          // Add any other required fields from your schema
-        },
+    if (existingRolesCount > 0) {
+      console.log(
+        `✅ Found ${existingRolesCount} existing roles. Loading existing roles...`
+      );
+      // Load existing roles into the createdRoles object
+      const existingRoles = await prisma.role.findMany();
+      existingRoles.forEach((role) => {
+        createdRoles[role.name] = role;
       });
-      createdRoles[role.name] = createdRole;
-      console.log(`✅ Role created: ${role.name} (ID: ${createdRole.id})`);
+    } else {
+      console.log("Creating roles...");
+    }
+
+    // Create or get roles
+    for (const role of roles) {
+      if (createdRoles[role.name]) {
+        console.log(
+          `✅ Role already exists: ${role.name} (ID: ${
+            createdRoles[role.name].id
+          })`
+        );
+      } else {
+        const createdRole = await prisma.role.create({
+          data: {
+            name: role.name,
+            description: role.description,
+          },
+        });
+        createdRoles[role.name] = createdRole;
+        console.log(`✅ Role created: ${role.name} (ID: ${createdRole.id})`);
+      }
     }
 
     // 2. Create users - ensure all required fields are included
@@ -69,11 +88,11 @@ async function seedDatabase() {
         role: "student",
       },
     ];
-
     console.log("Creating users...");
+
     for (const userData of users) {
       // Check if user already exists
-      const existingUser = await prisma.t_user.findFirst({
+      const existingUser = await prisma.user.findFirst({
         where: {
           OR: [{ username: userData.username }, { email: userData.email }],
         },
@@ -90,7 +109,7 @@ async function seedDatabase() {
       const hashedPassword = await bcrypt.hash(userData.password, 12);
 
       // Create user with all required fields based on your schema
-      const newUser = await prisma.t_user.create({
+      const newUser = await prisma.user.create({
         data: {
           username: userData.username,
           password: hashedPassword,
@@ -98,18 +117,15 @@ async function seedDatabase() {
           firstName: userData.firstName,
           lastName: userData.lastName,
           phone: userData.phone,
-          role_id: createdRoles[userData.role].id,
-          // Add any other required fields from your t_user schema
-          // For example, if you have createdAt, updatedAt (usually auto-generated)
-          // If you have any NOT NULL fields without defaults, add them here
+          roleId: createdRoles[userData.role].id,
         },
         include: {
-          t_role: true,
+          role: true,
         },
       });
 
       console.log(
-        `✅ User created: ${newUser.username} (${newUser.t_role.name})`
+        `✅ User created: ${newUser.username} (${newUser.role.name})`
       );
     }
 
@@ -151,11 +167,11 @@ async function cleanDatabase() {
 
     // Delete in correct order due to foreign key constraints
     // Delete users first (they reference roles)
-    await prisma.t_user.deleteMany({});
+    await prisma.user.deleteMany({});
     console.log("✅ Users deleted");
 
     // Then delete roles
-    await prisma.t_role.deleteMany({});
+    await prisma.role.deleteMany({});
     console.log("✅ Roles deleted");
 
     console.log("🎉 Database cleaned successfully!");
