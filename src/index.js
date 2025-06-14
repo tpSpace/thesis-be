@@ -19,22 +19,22 @@ async function initializeDatabase() {
   try {
     // Test database connection
     await prisma.$connect();
-    console.log('✅ Database connection successful');
+    console.log("✅ Database connection successful");
 
     // Run Prisma migrations
-    const { execSync } = require('child_process');
+    const { execSync } = require("child_process");
     try {
-      console.log('🔄 Running database migrations...');
-      execSync('bunx prisma migrate deploy', { stdio: 'inherit' });
-      console.log('✅ Database migrations completed successfully');
+      console.log("🔄 Running database migrations...");
+      execSync("bunx prisma migrate deploy", { stdio: "inherit" });
+      console.log("✅ Database migrations completed successfully");
     } catch (error) {
-      console.error('❌ Error running migrations:', error);
+      console.error("❌ Error running migrations:", error);
       throw error;
     }
 
     return true;
   } catch (error) {
-    console.error('❌ Database initialization failed:', error);
+    console.error("❌ Database initialization failed:", error);
     throw error;
   }
 }
@@ -52,7 +52,9 @@ app.disable("x-powered-by");
 app.use((req, res, next) => {
   const ip = req.ip || req.socket.remoteAddress;
   const timestamp = new Date().toISOString();
-  console.log(`[${timestamp}] Request from IP: ${ip}, Path: ${req.path}, Method: ${req.method}`);
+  console.log(
+    `[${timestamp}] Request from IP: ${ip}, Path: ${req.path}, Method: ${req.method}`
+  );
   next();
 });
 
@@ -71,7 +73,7 @@ const corsOptions = {
     "http://34.150.46.153",
     "http://34.150.46.153/api/graphql",
     "http://34.150.46.153/app",
-
+    "http://34.150.46.153/app",
     "https://34.150.46.153",
     "https://34.150.46.153/api/graphql",
     "https://34.150.46.153/app",
@@ -122,14 +124,14 @@ async function startServer() {
       app,
       cors: false,
       // Important: Match the path from your ingress configuration
-      path: "/api/graphql",
+      path: "/graphql",
     });
 
     app.listen(PORT, () => {
-      console.log(`🚀 Server ready at http://localhost:${PORT}/api/graphql`);
+      console.log(`🚀 Server ready at http://localhost:${PORT}/graphql`);
     });
   } catch (error) {
-    console.error('Failed to start server:', error);
+    console.error("Failed to start server:", error);
     process.exit(1);
   }
 }
